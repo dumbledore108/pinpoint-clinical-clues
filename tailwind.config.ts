@@ -18,7 +18,19 @@ export default {
 			}
 		},
 		extend: {
-			colors: {
+      colors: {
+        medical: {
+          primary: '#9b87f5',
+          secondary: '#7E69AB',
+          tertiary: '#6E59A5',
+          dark: '#1A1F2C',
+          light: '#D6BCFA',
+        },
+        feedback: {
+          success: '#4ade80',
+          error: '#f87171',
+          warning: '#facc15',
+        },
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
