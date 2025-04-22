@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ClueSet, GameState } from '../types/game';
 import { CLUE_SETS } from '../data/cluesets';
@@ -7,10 +6,9 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 
 const GameContainer: React.FC = () => {
-  // Initialize state
   const [gameState, setGameState] = useState<GameState>({
     currentClueIndex: 0,
-    currentSet: { theme: '', keyword: '', clues: [] }, // Added the keyword property here
+    currentSet: { theme: '', keyword: '', clues: [] },
     hasGuessedCorrectly: false,
     isGameOver: false,
     message: '',
@@ -19,7 +17,6 @@ const GameContainer: React.FC = () => {
   
   const [userGuess, setUserGuess] = useState('');
   
-  // Select a random clue set on component mount
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * CLUE_SETS.length);
     const selectedSet = CLUE_SETS[randomIndex];
@@ -37,54 +34,19 @@ const GameContainer: React.FC = () => {
   const normalizeGuess = (input: string): string => {
     return input
       .toLowerCase()
-      .replace(/[-\s]/g, '')  // Remove hyphens and spaces
+      .replace(/[-\s]/g, '')  
       .trim();
   };
   
-  const handleGuess = () => {
-    if (!userGuess.trim()) return;
+  const selectNewClueSet = () => {
+    let randomIndex;
+    do {
+      randomIndex = Math.floor(Math.random() * CLUE_SETS.length);
+    } while (
+      gameState.currentSet.theme && 
+      CLUE_SETS[randomIndex].theme === gameState.currentSet.theme
+    );
     
-    // Check if the guess matches the keyword
-    const normalizedGuess = normalizeGuess(userGuess);
-    const normalizedKeyword = normalizeGuess(gameState.currentSet.keyword);
-    const isCorrect = normalizedGuess === normalizedKeyword;
-    
-    if (isCorrect) {
-      // Reveal all clues and mark as correct
-      setGameState(prev => ({
-        ...prev,
-        currentClueIndex: prev.currentSet.clues.length - 1, // Show all clues
-        hasGuessedCorrectly: true,
-        isGameOver: true,
-        message: `✅ Correct! The theme was: ${gameState.currentSet.theme}.`,
-        messageType: 'success',
-      }));
-    } else {
-      // Wrong guess handling
-      const nextClueIndex = gameState.currentClueIndex + 1;
-      
-      if (nextClueIndex >= gameState.currentSet.clues.length) {
-        setGameState(prev => ({
-          ...prev,
-          isGameOver: true,
-          message: `⛔ Out of guesses! The theme was: ${gameState.currentSet.theme}.`,
-          messageType: 'error',
-        }));
-      } else {
-        setGameState(prev => ({
-          ...prev,
-          currentClueIndex: nextClueIndex,
-          message: `❌ Not quite. Here's your next clue:`,
-          messageType: 'warning',
-        }));
-      }
-    }
-    
-    setUserGuess('');
-  };
-  
-  const startNewGame = () => {
-    const randomIndex = Math.floor(Math.random() * CLUE_SETS.length);
     const selectedSet = CLUE_SETS[randomIndex];
     
     setGameState({
@@ -99,7 +61,46 @@ const GameContainer: React.FC = () => {
     setUserGuess('');
   };
   
-  // Get message color based on the message type
+  const handleGuess = () => {
+    if (!userGuess.trim()) return;
+    
+    const normalizedGuess = normalizeGuess(userGuess);
+    const normalizedKeyword = normalizeGuess(gameState.currentSet.keyword);
+    const isCorrect = normalizedGuess === normalizedKeyword;
+    
+    if (isCorrect) {
+      setGameState(prev => ({
+        ...prev,
+        currentClueIndex: prev.currentSet.clues.length - 1,
+        hasGuessedCorrectly: true,
+        isGameOver: true,
+        message: `✅ Correct! The theme was: ${gameState.currentSet.theme}.`,
+        messageType: 'success',
+      }));
+    } else {
+      const nextClueIndex = gameState.currentClueIndex + 1;
+      
+      if (nextClueIndex >= gameState.currentSet.clues.length) {
+        setGameState(prev => ({
+          ...prev,
+          isGameOver: true,
+          message: `⛔ Out of guesses! The theme was: ${gameState.currentSet.theme}.`,
+          messageType: 'error',
+        }));
+        setTimeout(selectNewClueSet, 2000);
+      } else {
+        setGameState(prev => ({
+          ...prev,
+          currentClueIndex: nextClueIndex,
+          message: `❌ Not quite. Here's your next clue:`,
+          messageType: 'warning',
+        }));
+      }
+    }
+    
+    setUserGuess('');
+  };
+  
   const getMessageColor = () => {
     switch (gameState.messageType) {
       case 'success':
@@ -119,12 +120,10 @@ const GameContainer: React.FC = () => {
 
   return (
     <div className="w-full max-w-md mx-auto p-4">
-      {/* Status message */}
       <div className={`mb-6 text-lg font-medium ${getMessageColor()}`}>
         {gameState.message}
       </div>
       
-      {/* Clue cards */}
       <div className="mb-6">
         {gameState.currentSet.clues.map((clue, index) => (
           <ClueCard 
@@ -137,7 +136,6 @@ const GameContainer: React.FC = () => {
         ))}
       </div>
       
-      {/* Input area */}
       {!gameState.isGameOver ? (
         <div className="flex flex-col space-y-4">
           <Input
@@ -155,9 +153,9 @@ const GameContainer: React.FC = () => {
             Submit Guess
           </Button>
         </div>
-      ) : (
+      ) : gameState.hasGuessedCorrectly && (
         <Button 
-          onClick={startNewGame}
+          onClick={selectNewClueSet}
           className="w-full bg-medical-dark hover:bg-medical-tertiary text-white"
         >
           New Game
