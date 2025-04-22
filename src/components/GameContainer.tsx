@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ClueSet, GameState } from '../types/game';
 import { CLUE_SETS } from '../data/cluesets';
@@ -9,7 +10,7 @@ const GameContainer: React.FC = () => {
   // Initialize state
   const [gameState, setGameState] = useState<GameState>({
     currentClueIndex: 0,
-    currentSet: { theme: '', clues: [] },
+    currentSet: { theme: '', keyword: '', clues: [] }, // Added the keyword property here
     hasGuessedCorrectly: false,
     isGameOver: false,
     message: '',
