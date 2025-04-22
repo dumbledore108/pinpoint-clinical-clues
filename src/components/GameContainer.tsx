@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ClueSet, GameState } from '../types/game';
 import { CLUE_SETS } from '../data/cluesets';
@@ -16,19 +17,11 @@ const GameContainer: React.FC = () => {
   });
   
   const [userGuess, setUserGuess] = useState('');
+  const [playedThemes, setPlayedThemes] = useState<Set<string>>(new Set());
+  const [allThemesExhausted, setAllThemesExhausted] = useState(false);
   
   useEffect(() => {
-    const randomIndex = Math.floor(Math.random() * CLUE_SETS.length);
-    const selectedSet = CLUE_SETS[randomIndex];
-    
-    setGameState({
-      currentClueIndex: 0,
-      currentSet: selectedSet,
-      hasGuessedCorrectly: false,
-      isGameOver: false,
-      message: `What's the theme? Here's your first clue:`,
-      messageType: 'info',
-    });
+    selectNewClueSet();
   }, []);
   
   const normalizeGuess = (input: string): string => {
@@ -39,16 +32,17 @@ const GameContainer: React.FC = () => {
   };
   
   const selectNewClueSet = () => {
-    let randomIndex;
-    do {
-      randomIndex = Math.floor(Math.random() * CLUE_SETS.length);
-    } while (
-      gameState.currentSet.theme && 
-      CLUE_SETS[randomIndex].theme === gameState.currentSet.theme
-    );
+    const availableThemes = CLUE_SETS.filter(set => !playedThemes.has(set.theme));
     
-    const selectedSet = CLUE_SETS[randomIndex];
+    if (availableThemes.length === 0) {
+      setAllThemesExhausted(true);
+      return;
+    }
     
+    const randomIndex = Math.floor(Math.random() * availableThemes.length);
+    const selectedSet = availableThemes[randomIndex];
+    
+    setPlayedThemes(prev => new Set([...prev, selectedSet.theme]));
     setGameState({
       currentClueIndex: 0,
       currentSet: selectedSet,
@@ -113,6 +107,15 @@ const GameContainer: React.FC = () => {
         return 'text-medical-primary';
     }
   };
+
+  if (allThemesExhausted) {
+    return (
+      <div className="w-full max-w-md mx-auto p-4 text-center space-y-4">
+        <h2 className="text-2xl font-bold text-medical-primary mb-4">That's a wrap! You've cracked all the current clues.</h2>
+        <p className="text-gray-600">We're cooking up more clinical challenges — come back tomorrow for Round 2.</p>
+      </div>
+    );
+  }
 
   if (!gameState.currentSet.theme) {
     return <div className="flex items-center justify-center h-full">Loading...</div>;
