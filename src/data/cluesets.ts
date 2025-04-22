@@ -3,69 +3,81 @@ import { ClueSet } from "../types/game";
 
 export const CLUE_SETS: ClueSet[] = [
   {
-    theme: "GLP-1 Agonists",
-    keyword: "GLP-1",
+    theme: "Banned or Withdrawn Drugs",
+    keyword: "withdrawn",
     clues: [
-      "Semaglutide",
-      "Liraglutide",
-      "Dulaglutide",
-      "Tirzepatide",
-      "Exenatide"
+      "Rofecoxib",
+      "Thalidomide",
+      "Fenfluramine",
+      "Cisapride",
+      "Terfenadine"
     ]
   },
   {
-    theme: "Monoclonal Antibodies",
-    keyword: "monoclonal",
+    theme: "DNA Viruses",
+    keyword: "DNA",
     clues: [
-      "Rituximab",
-      "Trastuzumab",
-      "Adalimumab",
-      "Infliximab",
-      "Bevacizumab"
+      "Hepatitis B",
+      "Herpes simplex",
+      "HPV",
+      "Adenovirus",
+      "Varicella-zoster"
     ]
   },
   {
-    theme: "Common Pediatric Vaccines",
-    keyword: "vaccines",
+    theme: "Checkpoint Inhibitor Targets",
+    keyword: "checkpoint",
     clues: [
-      "DTaP",
-      "IPV",
-      "MMR",
-      "Hib",
-      "Varicella"
+      "PD-1",
+      "PD-L1",
+      "CTLA-4",
+      "LAG-3",
+      "TIM-3"
     ]
   },
   {
-    theme: "Cancer Screening Guidelines",
-    keyword: "screening",
+    theme: "Zoonotic Infections",
+    keyword: "zoonotic",
     clues: [
-      "Colonoscopy",
-      "Mammography",
-      "Pap smear",
-      "PSA test",
-      "Low-dose CT"
+      "Brucellosis",
+      "Leptospirosis",
+      "Anthrax",
+      "Rabies",
+      "Tularemia"
     ]
   },
   {
-    theme: "Antiplatelet Drugs",
-    keyword: "antiplatelet",
+    theme: "Antiarrhythmic Drugs (Class III)",
+    keyword: "class3",
     clues: [
-      "Aspirin",
-      "Clopidogrel",
-      "Prasugrel",
-      "Ticagrelor",
-      "Dipyridamole"
+      "Amiodarone",
+      "Dronedarone",
+      "Sotalol",
+      "Ibutilide",
+      "Dofetilide"
     ]
   },
   {
-    theme: "Autoimmune Diseases",
-    keyword: "autoimmune",
+    theme: "Conditions Associated with HLA-B27",
+    keyword: "hla-b27",
     clues: [
-      "Lupus",
-      "Rheumatoid arthritis",
-      "Psoriasis",
-      "Multiple sclerosis",
-      "Crohn's disease"
+      "Ankylosing spondylitis",
+      "Reactive arthritis",
+      "Psoriatic arthritis",
+      "IBD-associated arthritis",
+      "Uveitis"
+    ]
+  },
+  {
+    theme: "Black Box Warning Drugs for Suicidality",
+    keyword: "suicidality",
+    clues: [
+      "Fluoxetine",
+      "Sertraline",
+      "Venlafaxine",
+      "Bupropion",
+      "Atomoxetine"
     ]
   }
 ];
+
