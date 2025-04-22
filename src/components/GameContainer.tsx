@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ClueSet, GameState } from '../types/game';
 import { CLUE_SETS } from '../data/cluesets';
@@ -34,33 +33,36 @@ const GameContainer: React.FC = () => {
     });
   }, []);
   
+  const normalizeGuess = (input: string): string => {
+    return input
+      .toLowerCase()
+      .replace(/[-\s]/g, '')  // Remove hyphens and spaces
+      .trim();
+  };
+  
   const handleGuess = () => {
     if (!userGuess.trim()) return;
     
-    // Check if the guess is correct
-    const normalizedGuess = userGuess.toLowerCase().trim();
-    const normalizedTheme = gameState.currentSet.theme.toLowerCase();
-    
-    // Accept close synonyms (this is a simple implementation, could be enhanced)
-    const isCorrect = normalizedGuess === normalizedTheme || 
-                      normalizedTheme.includes(normalizedGuess) || 
-                      normalizedGuess.includes(normalizedTheme);
+    // Check if the guess matches the keyword
+    const normalizedGuess = normalizeGuess(userGuess);
+    const normalizedKeyword = normalizeGuess(gameState.currentSet.keyword);
+    const isCorrect = normalizedGuess === normalizedKeyword;
     
     if (isCorrect) {
-      // User guessed correctly
+      // Reveal all clues and mark as correct
       setGameState(prev => ({
         ...prev,
+        currentClueIndex: prev.currentSet.clues.length - 1, // Show all clues
         hasGuessedCorrectly: true,
         isGameOver: true,
         message: `✅ Correct! The theme was: ${gameState.currentSet.theme}.`,
         messageType: 'success',
       }));
     } else {
-      // User guessed incorrectly
+      // Wrong guess handling
       const nextClueIndex = gameState.currentClueIndex + 1;
       
       if (nextClueIndex >= gameState.currentSet.clues.length) {
-        // No more clues, game over
         setGameState(prev => ({
           ...prev,
           isGameOver: true,
@@ -68,7 +70,6 @@ const GameContainer: React.FC = () => {
           messageType: 'error',
         }));
       } else {
-        // Show next clue
         setGameState(prev => ({
           ...prev,
           currentClueIndex: nextClueIndex,

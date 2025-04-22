@@ -1,6 +1,7 @@
 
 export interface ClueSet {
   theme: string;
+  keyword: string; // The specific answer that needs to be matched
   clues: string[];
 }
 

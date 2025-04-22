@@ -4,6 +4,7 @@ import { ClueSet } from "../types/game";
 export const CLUE_SETS: ClueSet[] = [
   {
     theme: "GLP-1 Agonists",
+    keyword: "GLP-1",
     clues: [
       "Semaglutide",
       "Liraglutide",
@@ -14,6 +15,7 @@ export const CLUE_SETS: ClueSet[] = [
   },
   {
     theme: "Monoclonal Antibodies",
+    keyword: "monoclonal",
     clues: [
       "Rituximab",
       "Trastuzumab",
@@ -24,6 +26,7 @@ export const CLUE_SETS: ClueSet[] = [
   },
   {
     theme: "Common Pediatric Vaccines",
+    keyword: "vaccines",
     clues: [
       "DTaP",
       "IPV",
@@ -34,6 +37,7 @@ export const CLUE_SETS: ClueSet[] = [
   },
   {
     theme: "Cancer Screening Guidelines",
+    keyword: "screening",
     clues: [
       "Colonoscopy",
       "Mammography",
@@ -44,6 +48,7 @@ export const CLUE_SETS: ClueSet[] = [
   },
   {
     theme: "Antiplatelet Drugs",
+    keyword: "antiplatelet",
     clues: [
       "Aspirin",
       "Clopidogrel",
@@ -54,6 +59,7 @@ export const CLUE_SETS: ClueSet[] = [
   },
   {
     theme: "Autoimmune Diseases",
+    keyword: "autoimmune",
     clues: [
       "Lupus",
       "Rheumatoid arthritis",
