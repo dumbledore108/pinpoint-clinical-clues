@@ -1,10 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ClueSet, GameState } from '../types/game';
 import { CLUE_SETS } from '../data/cluesets';
 import ClueCard from './ClueCard';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
+
+const sendGtagEvent = (event: string, params: any) => {
+  if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+    window.gtag('event', event, params);
+  }
+};
 
 const GameContainer: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
@@ -20,17 +26,55 @@ const GameContainer: React.FC = () => {
   const [playedThemes, setPlayedThemes] = useState<Set<string>>(new Set());
   const [allThemesExhausted, setAllThemesExhausted] = useState(false);
   
+  // Used to avoid firing certain events more than once per theme load or mount
+  const isFirstMount = useRef(true);
+  const lastThemeId = useRef<string | null>(null);
+
   useEffect(() => {
+    // Fire page_visit once when component mounts
+    if (typeof window !== "undefined" && typeof window.gtag === "function") {
+      sendGtagEvent('page_visit', {
+        page_title: 'Pinpoint',
+        page_path: '/pinpoint'
+      });
+    }
     selectNewClueSet();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+
+  useEffect(() => {
+    // Fire theme_seen if a new theme is loaded
+    if (gameState.currentSet.theme && lastThemeId.current !== gameState.currentSet.keyword) {
+      sendGtagEvent('theme_seen', {
+        theme_id: gameState.currentSet.keyword
+      });
+      lastThemeId.current = gameState.currentSet.keyword;
+      // Also fire clue_seen for the first clue in the set
+      sendGtagEvent('clue_seen', {
+        clue_index: 1
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState.currentSet.theme]); // Only triggers on theme change
+
+  useEffect(() => {
+    // Fire clue_seen every time the clue index increases (but not on initial set)
+    if (!isFirstMount.current && gameState.currentSet.theme && gameState.currentClueIndex > 0) {
+      sendGtagEvent('clue_seen', {
+        clue_index: gameState.currentClueIndex + 1
+      });
+    }
+    isFirstMount.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState.currentClueIndex]);
+
   const normalizeGuess = (input: string): string => {
     return input
       .toLowerCase()
       .replace(/[-\s]/g, '')  
       .trim();
   };
-  
+
   const selectNewClueSet = () => {
     const availableThemes = CLUE_SETS.filter(set => !playedThemes.has(set.theme));
     
@@ -54,14 +98,19 @@ const GameContainer: React.FC = () => {
     
     setUserGuess('');
   };
-  
+
   const handleGuess = () => {
     if (!userGuess.trim()) return;
-    
+
+    sendGtagEvent('submit_guess', {
+      clue_index: gameState.currentClueIndex + 1,
+      guess_value: userGuess
+    });
+
     const normalizedGuess = normalizeGuess(userGuess);
     const normalizedKeyword = normalizeGuess(gameState.currentSet.keyword);
     const isCorrect = normalizedGuess === normalizedKeyword;
-    
+
     if (isCorrect) {
       setGameState(prev => ({
         ...prev,
@@ -91,10 +140,10 @@ const GameContainer: React.FC = () => {
         }));
       }
     }
-    
+
     setUserGuess('');
   };
-  
+
   const getMessageColor = () => {
     switch (gameState.messageType) {
       case 'success':
