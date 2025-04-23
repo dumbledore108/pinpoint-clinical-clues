@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ClueSet, GameState } from '../types/game';
 import { CLUE_SETS } from '../data/cluesets';
@@ -7,7 +6,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 
 const sendGtagEvent = (event: string, params: any) => {
-  if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+  if (typeof window !== 'undefined' && 'gtag' in window) {
     window.gtag('event', event, params);
   }
 };
@@ -26,13 +25,11 @@ const GameContainer: React.FC = () => {
   const [playedThemes, setPlayedThemes] = useState<Set<string>>(new Set());
   const [allThemesExhausted, setAllThemesExhausted] = useState(false);
   
-  // Used to avoid firing certain events more than once per theme load or mount
   const isFirstMount = useRef(true);
   const lastThemeId = useRef<string | null>(null);
 
   useEffect(() => {
-    // Fire page_visit once when component mounts
-    if (typeof window !== "undefined" && typeof window.gtag === "function") {
+    if (typeof window !== "undefined" && 'gtag' in window) {
       sendGtagEvent('page_visit', {
         page_title: 'Pinpoint',
         page_path: '/pinpoint'
@@ -43,22 +40,19 @@ const GameContainer: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Fire theme_seen if a new theme is loaded
     if (gameState.currentSet.theme && lastThemeId.current !== gameState.currentSet.keyword) {
       sendGtagEvent('theme_seen', {
         theme_id: gameState.currentSet.keyword
       });
       lastThemeId.current = gameState.currentSet.keyword;
-      // Also fire clue_seen for the first clue in the set
       sendGtagEvent('clue_seen', {
         clue_index: 1
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState.currentSet.theme]); // Only triggers on theme change
+  }, [gameState.currentSet.theme]);
 
   useEffect(() => {
-    // Fire clue_seen every time the clue index increases (but not on initial set)
     if (!isFirstMount.current && gameState.currentSet.theme && gameState.currentClueIndex > 0) {
       sendGtagEvent('clue_seen', {
         clue_index: gameState.currentClueIndex + 1
