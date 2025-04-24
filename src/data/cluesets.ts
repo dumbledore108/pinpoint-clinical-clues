@@ -2,81 +2,95 @@
 import { ClueSet } from "../types/game";
 
 export const CLUE_SETS: ClueSet[] = [
+  // EASY SETS
   {
-    theme: "Banned or Withdrawn Drugs",
-    keyword: "withdrawn",
+    theme: "NSAIDs",
+    keyword: "nsaids",
     clues: [
-      "Rofecoxib",
-      "Thalidomide",
-      "Fenfluramine",
-      "Cisapride",
-      "Terfenadine"
+      "Ibuprofen",
+      "Naproxen",
+      "Diclofenac",
+      "Ketorolac",
+      "Indomethacin"
     ]
   },
   {
-    theme: "DNA Viruses",
-    keyword: "DNA",
+    theme: "Beta Blockers",
+    keyword: "beta-blockers",
     clues: [
-      "Hepatitis B",
-      "Herpes simplex",
-      "HPV",
-      "Adenovirus",
-      "Varicella-zoster"
+      "Metoprolol",
+      "Propranolol",
+      "Atenolol",
+      "Carvedilol",
+      "Bisoprolol"
     ]
   },
   {
-    theme: "Checkpoint Inhibitor Targets",
-    keyword: "checkpoint",
+    theme: "SSRIs",
+    keyword: "ssri",
     clues: [
-      "PD-1",
-      "PD-L1",
-      "CTLA-4",
-      "LAG-3",
-      "TIM-3"
-    ]
-  },
-  {
-    theme: "Zoonotic Infections",
-    keyword: "zoonotic",
-    clues: [
-      "Brucellosis",
-      "Leptospirosis",
-      "Anthrax",
-      "Rabies",
-      "Tularemia"
-    ]
-  },
-  {
-    theme: "Antiarrhythmic Drugs (Class III)",
-    keyword: "class3",
-    clues: [
-      "Amiodarone",
-      "Dronedarone",
-      "Sotalol",
-      "Ibutilide",
-      "Dofetilide"
-    ]
-  },
-  {
-    theme: "Conditions Associated with HLA-B27",
-    keyword: "hla-b27",
-    clues: [
-      "Ankylosing spondylitis",
-      "Reactive arthritis",
-      "Psoriatic arthritis",
-      "IBD-associated arthritis",
-      "Uveitis"
-    ]
-  },
-  {
-    theme: "Black Box Warning Drugs for Suicidality",
-    keyword: "suicidality",
-    clues: [
-      "Fluoxetine",
       "Sertraline",
-      "Venlafaxine",
-      "Bupropion",
-      "Atomoxetine"
+      "Escitalopram",
+      "Fluoxetine",
+      "Paroxetine",
+      "Citalopram"
+    ]
+  },
+  // MEDIUM SETS
+  {
+    theme: "Diabetes Complications",
+    keyword: "complications",
+    clues: [
+      "Retinopathy",
+      "Nephropathy",
+      "Neuropathy",
+      "Gastroparesis",
+      "Foot ulcer"
+    ]
+  },
+  {
+    theme: "Tumor Markers",
+    keyword: "markers",
+    clues: [
+      "PSA",
+      "CA-125",
+      "AFP",
+      "CEA",
+      "CA 19-9"
+    ]
+  },
+  {
+    theme: "Autoimmune Skin Disorders",
+    keyword: "autoimmune",
+    clues: [
+      "Pemphigus vulgaris",
+      "Bullous pemphigoid",
+      "Dermatitis herpetiformis",
+      "Psoriasis",
+      "Vitiligo"
+    ]
+  },
+  // HARD SETS
+  {
+    theme: "Opportunistic Infections in HIV",
+    keyword: "opportunistic",
+    clues: [
+      "Pneumocystis jirovecii",
+      "CMV retinitis",
+      "Toxoplasmosis",
+      "Cryptococcal meningitis",
+      "Mycobacterium avium complex"
+    ]
+  },
+  {
+    theme: "Reversible Causes of Cardiac Arrest (Hs and Ts)",
+    keyword: "hs-and-ts",
+    clues: [
+      "Hypoxia",
+      "Hypovolemia",
+      "Tension pneumothorax",
+      "Tamponade",
+      "Toxins"
     ]
   }
 ];
