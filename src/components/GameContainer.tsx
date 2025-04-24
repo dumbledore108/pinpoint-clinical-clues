@@ -24,6 +24,8 @@ const GameContainer: React.FC = () => {
   const [userGuess, setUserGuess] = useState('');
   const [playedThemes, setPlayedThemes] = useState<Set<string>>(new Set());
   const [allThemesExhausted, setAllThemesExhausted] = useState(false);
+  const [wrongGuesses, setWrongGuesses] = useState<string[]>([]);
+  const timeoutRef = useRef<NodeJS.Timeout>();
   
   const isFirstMount = useRef(true);
   const lastThemeId = useRef<string | null>(null);
@@ -91,6 +93,7 @@ const GameContainer: React.FC = () => {
     });
     
     setUserGuess('');
+    setWrongGuesses([]);
   };
 
   const handleGuess = () => {
@@ -115,6 +118,7 @@ const GameContainer: React.FC = () => {
         messageType: 'success',
       }));
     } else {
+      setWrongGuesses(prev => [...prev, userGuess]);
       const nextClueIndex = gameState.currentClueIndex + 1;
       
       if (nextClueIndex >= gameState.currentSet.clues.length) {
@@ -124,7 +128,12 @@ const GameContainer: React.FC = () => {
           message: `⛔ Out of guesses! The theme was: ${gameState.currentSet.theme}.`,
           messageType: 'error',
         }));
-        setTimeout(selectNewClueSet, 2000);
+        
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        
+        timeoutRef.current = setTimeout(selectNewClueSet, 7000);
       } else {
         setGameState(prev => ({
           ...prev,
@@ -150,6 +159,14 @@ const GameContainer: React.FC = () => {
         return 'text-medical-primary';
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   if (allThemesExhausted) {
     return (
@@ -181,6 +198,19 @@ const GameContainer: React.FC = () => {
           />
         ))}
       </div>
+      
+      {wrongGuesses.length > 0 && (
+        <div className="mb-4">
+          <p className="text-sm text-gray-600 mb-2">Previous guesses:</p>
+          <div className="flex flex-wrap gap-2">
+            {wrongGuesses.map((guess, index) => (
+              <span key={index} className="px-2 py-1 bg-gray-100 rounded-md text-sm">
+                {guess}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
       
       {!gameState.isGameOver ? (
         <div className="flex flex-col space-y-4">
