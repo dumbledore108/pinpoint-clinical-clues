@@ -1,172 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ClueSet, GameState } from '../types/game';
-import { CLUE_SETS } from '../data/cluesets';
-import ClueCard from './ClueCard';
+
+import React from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-
-const sendGtagEvent = (event: string, params: any) => {
-  if (typeof window !== 'undefined' && 'gtag' in window) {
-    window.gtag('event', event, params);
-  }
-};
+import ClueCard from './ClueCard';
+import WrongGuesses from './WrongGuesses';
+import GameMessage from './GameMessage';
+import { useGameState } from '../hooks/useGameState';
 
 const GameContainer: React.FC = () => {
-  const [gameState, setGameState] = useState<GameState>({
-    currentClueIndex: 0,
-    currentSet: { theme: '', keyword: '', clues: [] },
-    hasGuessedCorrectly: false,
-    isGameOver: false,
-    message: '',
-    messageType: null,
-  });
-  
-  const [userGuess, setUserGuess] = useState('');
-  const [playedThemes, setPlayedThemes] = useState<Set<string>>(new Set());
-  const [allThemesExhausted, setAllThemesExhausted] = useState(false);
-  const [wrongGuesses, setWrongGuesses] = useState<string[]>([]);
-  const timeoutRef = useRef<NodeJS.Timeout>();
-  
-  const isFirstMount = useRef(true);
-  const lastThemeId = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && 'gtag' in window) {
-      sendGtagEvent('page_visit', {
-        page_title: 'Pinpoint',
-        page_path: '/pinpoint'
-      });
-    }
-    selectNewClueSet();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (gameState.currentSet.theme && lastThemeId.current !== gameState.currentSet.keyword) {
-      sendGtagEvent('theme_seen', {
-        theme_id: gameState.currentSet.keyword
-      });
-      lastThemeId.current = gameState.currentSet.keyword;
-      sendGtagEvent('clue_seen', {
-        clue_index: 1
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState.currentSet.theme]);
-
-  useEffect(() => {
-    if (!isFirstMount.current && gameState.currentSet.theme && gameState.currentClueIndex > 0) {
-      sendGtagEvent('clue_seen', {
-        clue_index: gameState.currentClueIndex + 1
-      });
-    }
-    isFirstMount.current = false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState.currentClueIndex]);
-
-  const normalizeGuess = (input: string): string => {
-    return input
-      .toLowerCase()
-      .replace(/[-\s]/g, '')  
-      .trim();
-  };
-
-  const selectNewClueSet = () => {
-    const availableThemes = CLUE_SETS.filter(set => !playedThemes.has(set.theme));
-    
-    if (availableThemes.length === 0) {
-      setAllThemesExhausted(true);
-      return;
-    }
-    
-    const randomIndex = Math.floor(Math.random() * availableThemes.length);
-    const selectedSet = availableThemes[randomIndex];
-    
-    setPlayedThemes(prev => new Set([...prev, selectedSet.theme]));
-    setGameState({
-      currentClueIndex: 0,
-      currentSet: selectedSet,
-      hasGuessedCorrectly: false,
-      isGameOver: false,
-      message: `What's the theme? Here's your first clue:`,
-      messageType: 'info',
-    });
-    
-    setUserGuess('');
-    setWrongGuesses([]);
-  };
-
-  const handleGuess = () => {
-    if (!userGuess.trim()) return;
-
-    sendGtagEvent('submit_guess', {
-      clue_index: gameState.currentClueIndex + 1,
-      guess_value: userGuess
-    });
-
-    const normalizedGuess = normalizeGuess(userGuess);
-    const normalizedKeyword = normalizeGuess(gameState.currentSet.keyword);
-    const isCorrect = normalizedGuess === normalizedKeyword;
-
-    if (isCorrect) {
-      setGameState(prev => ({
-        ...prev,
-        currentClueIndex: prev.currentSet.clues.length - 1,
-        hasGuessedCorrectly: true,
-        isGameOver: true,
-        message: `✅ Correct! The theme was: ${gameState.currentSet.theme}.`,
-        messageType: 'success',
-      }));
-    } else {
-      setWrongGuesses(prev => [...prev, userGuess]);
-      const nextClueIndex = gameState.currentClueIndex + 1;
-      
-      if (nextClueIndex >= gameState.currentSet.clues.length) {
-        setGameState(prev => ({
-          ...prev,
-          isGameOver: true,
-          message: `⛔ Out of guesses! The theme was: ${gameState.currentSet.theme}.`,
-          messageType: 'error',
-        }));
-        
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-        }
-        
-        timeoutRef.current = setTimeout(selectNewClueSet, 7000);
-      } else {
-        setGameState(prev => ({
-          ...prev,
-          currentClueIndex: nextClueIndex,
-          message: `❌ Not quite. Here's your next clue:`,
-          messageType: 'warning',
-        }));
-      }
-    }
-
-    setUserGuess('');
-  };
-
-  const getMessageColor = () => {
-    switch (gameState.messageType) {
-      case 'success':
-        return 'text-feedback-success';
-      case 'error':
-        return 'text-feedback-error';
-      case 'warning':
-        return 'text-feedback-warning';
-      default:
-        return 'text-medical-primary';
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
+  const {
+    gameState,
+    userGuess,
+    setUserGuess,
+    wrongGuesses,
+    allThemesExhausted,
+    handleGuess,
+    selectNewClueSet
+  } = useGameState();
 
   if (allThemesExhausted) {
     return (
@@ -183,9 +33,7 @@ const GameContainer: React.FC = () => {
 
   return (
     <div className="w-full max-w-md mx-auto p-4">
-      <div className={`mb-6 text-lg font-medium ${getMessageColor()}`}>
-        {gameState.message}
-      </div>
+      <GameMessage message={gameState.message} messageType={gameState.messageType} />
       
       <div className="mb-6">
         {gameState.currentSet.clues.map((clue, index) => (
@@ -199,18 +47,7 @@ const GameContainer: React.FC = () => {
         ))}
       </div>
       
-      {wrongGuesses.length > 0 && (
-        <div className="mb-4">
-          <p className="text-sm text-gray-600 mb-2">Previous guesses:</p>
-          <div className="flex flex-wrap gap-2">
-            {wrongGuesses.map((guess, index) => (
-              <span key={index} className="px-2 py-1 bg-gray-100 rounded-md text-sm">
-                {guess}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
+      <WrongGuesses guesses={wrongGuesses} />
       
       {!gameState.isGameOver ? (
         <div className="flex flex-col space-y-4">
