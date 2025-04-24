@@ -2,6 +2,7 @@
 import React from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
+import { SkipForward } from 'lucide-react';
 import ClueCard from './ClueCard';
 import WrongGuesses from './WrongGuesses';
 import GameMessage from './GameMessage';
@@ -66,13 +67,26 @@ const GameContainer: React.FC = () => {
             Submit Guess
           </Button>
         </div>
-      ) : gameState.hasGuessedCorrectly && (
-        <Button 
-          onClick={selectNewClueSet}
-          className="w-full bg-medical-dark hover:bg-medical-tertiary text-white"
-        >
-          New Game
-        </Button>
+      ) : (
+        <div className="flex flex-col space-y-4">
+          {!gameState.hasGuessedCorrectly && (
+            <Button 
+              onClick={selectNewClueSet}
+              className="w-full bg-medical-dark hover:bg-medical-tertiary text-white flex items-center justify-center"
+            >
+              <SkipForward className="mr-2" size={20} />
+              Next Theme
+            </Button>
+          )}
+          {gameState.hasGuessedCorrectly && (
+            <Button 
+              onClick={selectNewClueSet}
+              className="w-full bg-medical-dark hover:bg-medical-tertiary text-white"
+            >
+              New Game
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );
